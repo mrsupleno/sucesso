@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Plus, X, Edit2, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, Edit2, Check, Lock } from 'lucide-react'
 
-function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao }) {
+function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao, diasEncerrados }) {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [editingFreelancerId, setEditingFreelancerId] = useState(null)
   const [editValue, setEditValue] = useState('')
@@ -49,9 +49,14 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao }) {
 
   const dateKey = formatDateKey(selectedDate)
   const daySchedule = programacao[dateKey] || { freelancers: [] }
+  const diaEncerrado = diasEncerrados?.[dateKey] || false
 
   // Adicionar freelancer à programação do dia
   const addFreelancerToDay = (freelancer) => {
+    if (diaEncerrado) {
+      alert('Este dia já foi encerrado. Não é possível adicionar freelancers.')
+      return
+    }
     const newSchedule = {
       ...programacao,
       [dateKey]: {
@@ -69,6 +74,10 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao }) {
 
   // Remover freelancer da programação do dia
   const removeFreelancerFromDay = (freelancerId) => {
+    if (diaEncerrado) {
+      alert('Este dia já foi encerrado. Não é possível remover freelancers.')
+      return
+    }
     if (confirm('Tem certeza que deseja remover este freelancer da programação do dia?')) {
       const newSchedule = {
         ...programacao,
@@ -82,6 +91,10 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao }) {
 
   // Iniciar edição de valor
   const startEditValue = (freelancerId, currentValue) => {
+    if (diaEncerrado) {
+      alert('Este dia já foi encerrado. Não é possível editar valores.')
+      return
+    }
     setEditingFreelancerId(freelancerId)
     setEditValue(currentValue.toString())
   }
@@ -196,6 +209,19 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao }) {
           </button>
         </div>
       </div>
+
+      {/* Aviso de Dia Encerrado */}
+      {diaEncerrado && (
+        <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
+          <div className="flex items-center gap-2 text-gray-700 font-semibold">
+            <Lock size={18} />
+            <span>Dia Encerrado - Somente Visualização</span>
+          </div>
+          <p className="text-sm text-gray-600 mt-1">
+            Este dia foi encerrado e não pode ser editado. Use "Encerrar Dia" para reabrir se necessário.
+          </p>
+        </div>
+      )}
 
       {/* Programação do Dia */}
       {scheduleBySetor.length > 0 ? (
