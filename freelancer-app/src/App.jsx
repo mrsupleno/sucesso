@@ -5,10 +5,12 @@ import SetoresTab from './components/SetoresTab'
 import FreelancersTab from './components/FreelancersTab'
 import ProgramacaoTab from './components/ProgramacaoTab'
 import RelatorioModal from './components/RelatorioModal'
+import PagamentosModal from './components/PagamentosModal'
 
 function App() {
   const [activeTab, setActiveTab] = useState('programacao')
   const [isRelatorioOpen, setIsRelatorioOpen] = useState(false)
+  const [isPagamentosOpen, setIsPagamentosOpen] = useState(false)
 
   // Estados para dados
   const [setores, setSetores] = useState([
@@ -32,6 +34,7 @@ function App() {
   ])
 
   const [programacao, setProgramacao] = useState({})
+  const [pagamentos, setPagamentos] = useState({})
 
   const tabs = [
     { id: 'programacao', label: 'Programação', icon: Calendar },
@@ -49,8 +52,7 @@ function App() {
   }
 
   const handlePagamentos = () => {
-    console.log('Abrindo pagamentos...')
-    alert('Pagamentos em desenvolvimento')
+    setIsPagamentosOpen(true)
   }
 
   return (
@@ -144,6 +146,17 @@ function App() {
         programacao={programacao}
         freelancers={freelancers}
         setores={setores}
+      />
+
+      {/* Modal de Pagamentos */}
+      <PagamentosModal
+        isOpen={isPagamentosOpen}
+        onClose={() => setIsPagamentosOpen(false)}
+        programacao={programacao}
+        freelancers={freelancers}
+        setores={setores}
+        pagamentos={pagamentos}
+        setPagamentos={setPagamentos}
       />
     </div>
   )
