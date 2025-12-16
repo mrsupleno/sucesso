@@ -4,9 +4,11 @@ import './App.css'
 import SetoresTab from './components/SetoresTab'
 import FreelancersTab from './components/FreelancersTab'
 import ProgramacaoTab from './components/ProgramacaoTab'
+import RelatorioModal from './components/RelatorioModal'
 
 function App() {
   const [activeTab, setActiveTab] = useState('programacao')
+  const [isRelatorioOpen, setIsRelatorioOpen] = useState(false)
 
   // Estados para dados
   const [setores, setSetores] = useState([
@@ -43,8 +45,7 @@ function App() {
   }
 
   const handleRelatorio = () => {
-    console.log('Gerando relatório...')
-    alert('Relatório em desenvolvimento')
+    setIsRelatorioOpen(true)
   }
 
   const handlePagamentos = () => {
@@ -135,6 +136,15 @@ function App() {
           </button>
         </div>
       </footer>
+
+      {/* Modal de Relatório */}
+      <RelatorioModal
+        isOpen={isRelatorioOpen}
+        onClose={() => setIsRelatorioOpen(false)}
+        programacao={programacao}
+        freelancers={freelancers}
+        setores={setores}
+      />
     </div>
   )
 }
