@@ -245,7 +245,7 @@ function EncerrarDiaModal({ isOpen, onClose, programacao, setProgramacao, freela
                                   <>
                                     <button
                                       onClick={() => saveEditedValue(item.freelancerId)}
-                                      className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                                     >
                                       <Check size={18} />
                                     </button>
@@ -335,7 +335,7 @@ function EncerrarDiaModal({ isOpen, onClose, programacao, setProgramacao, freela
               {daySchedule.freelancers.length > 0 && (
                 <button
                   onClick={handleEncerrarDia}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Check size={18} />
                   <span>Encerrar Dia e Gerar Relatório</span>

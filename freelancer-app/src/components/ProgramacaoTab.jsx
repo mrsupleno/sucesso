@@ -228,7 +228,7 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao, dia
         <div className="space-y-4">
           {scheduleBySetor.map(({ setor, schedule, subtotal }) => (
             <div key={setor.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
+              <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between">
                 <h3 className="font-semibold">{setor.nome}</h3>
                 <span className="text-sm font-medium">
                   Subtotal: {formatCurrency(subtotal)}
@@ -261,7 +261,7 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao, dia
                             />
                             <button
                               onClick={() => saveEditedValue(item.freelancerId)}
-                              className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                               title="Salvar"
                             >
                               <Check size={18} />
@@ -339,7 +339,7 @@ function ProgramacaoTab({ setores, freelancers, programacao, setProgramacao, dia
 
           {availableFreelancersBySetor.map(({ setor, freelancers: availableFreelancers }) => (
             <div key={setor.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="bg-gray-800 text-white px-4 py-2">
+              <div className="bg-blue-600 text-white px-4 py-2">
                 <h3 className="font-semibold">{setor.nome}</h3>
               </div>
 

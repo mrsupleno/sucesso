@@ -62,7 +62,7 @@ function App() {
       {/* Header */}
       <header className="bg-blue-600 text-white shadow-md">
         <div className="max-w-[448px] mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold">Controle de Freelancers</h1>
+          <h1 className="text-xl font-bold">Saborite Gestor de Freelancers</h1>
         </div>
       </header>
 
@@ -138,14 +138,14 @@ function App() {
           </button>
           <button
             onClick={handlePagamentos}
-            className="flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             <DollarSign size={16} />
             <span>Pagamentos</span>
           </button>
           <button
             onClick={handleRelatorio}
-            className="flex items-center justify-center gap-1 px-3 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+            className="flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             <FileText size={16} />
             <span>Relatório</span>

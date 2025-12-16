@@ -150,7 +150,7 @@ function FreelancersTab({ freelancers, setFreelancers, setores }) {
       {/* Formulário de Adicionar/Editar */}
       {(isAdding || editingId) && (
         <div className="bg-white rounded-lg shadow-md p-4 space-y-3">
-          <div className="bg-gray-800 text-white px-4 py-2 -mx-4 -mt-4 mb-4 rounded-t-lg">
+          <div className="bg-blue-600 text-white px-4 py-2 -mx-4 -mt-4 mb-4 rounded-t-lg">
             <h3 className="font-semibold">
               {isAdding ? 'Novo Freelancer' : 'Editar Freelancer'}
             </h3>
@@ -232,7 +232,7 @@ function FreelancersTab({ freelancers, setFreelancers, setores }) {
           <div className="flex gap-2 pt-2">
             <button
               onClick={handleSave}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Check size={18} />
               <span>Salvar</span>
@@ -254,7 +254,7 @@ function FreelancersTab({ freelancers, setFreelancers, setores }) {
           <div key={setor.id}>
             {setorFreelancers.length > 0 && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="bg-gray-800 text-white px-4 py-2">
+                <div className="bg-blue-600 text-white px-4 py-2">
                   <h3 className="font-semibold">{setor.nome}</h3>
                 </div>
                 <div className="divide-y divide-gray-200">

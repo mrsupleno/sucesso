@@ -372,11 +372,11 @@ function PagamentosModal({ isOpen, onClose, programacao, freelancers, setores, p
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-[448px] w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-green-600 text-white px-4 py-3 flex items-center justify-between">
+        <div className="bg-blue-600 text-white px-4 py-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">Pagamentos</h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-green-700 rounded transition-colors"
+            className="p-1 hover:bg-blue-700 rounded transition-colors"
           >
             <X size={20} />
           </button>

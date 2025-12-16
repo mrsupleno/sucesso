@@ -72,7 +72,7 @@ function SetoresTab({ setores, setSetores }) {
       {/* Formulário de Adicionar/Editar */}
       {(isAdding || editingId) && (
         <div className="bg-white rounded-lg shadow-md p-4 space-y-3">
-          <div className="bg-gray-800 text-white px-4 py-2 -mx-4 -mt-4 mb-4 rounded-t-lg">
+          <div className="bg-blue-600 text-white px-4 py-2 -mx-4 -mt-4 mb-4 rounded-t-lg">
             <h3 className="font-semibold">
               {isAdding ? 'Novo Setor' : 'Editar Setor'}
             </h3>
@@ -108,7 +108,7 @@ function SetoresTab({ setores, setSetores }) {
           <div className="flex gap-2 pt-2">
             <button
               onClick={handleSave}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Check size={18} />
               <span>Salvar</span>
@@ -131,12 +131,12 @@ function SetoresTab({ setores, setSetores }) {
             key={setor.id}
             className="bg-white rounded-lg shadow-md overflow-hidden"
           >
-            <div className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
+            <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between">
               <h3 className="font-semibold">{setor.nome}</h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(setor)}
-                  className="p-1.5 hover:bg-gray-700 rounded transition-colors"
+                  className="p-1.5 hover:bg-blue-700 rounded transition-colors"
                   title="Editar"
                 >
                   <Edit2 size={16} />
