@@ -181,8 +181,124 @@ function PagamentosModal({ isOpen, onClose, programacao, freelancers, setores, p
     }
 
     setPagamentos(novosPagamentos)
+
+    // Gerar recibo automaticamente
+    imprimirReciboIndividual(freelancerData, valor)
+
     setRegistrandoPagamento(null)
     setValorPagamento('')
+  }
+
+  // Imprimir recibo individual
+  const imprimirReciboIndividual = (freelancer, valorPago) => {
+    const printWindow = window.open('', '', 'width=800,height=600')
+    const dataAtual = new Date().toLocaleDateString('pt-BR')
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Recibo de Pagamento - ${freelancer.nome}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 40px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            .recibo {
+              border: 2px solid #000;
+              padding: 30px;
+              margin-bottom: 20px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 20px;
+            }
+            .linha {
+              margin-bottom: 15px;
+              line-height: 1.8;
+            }
+            .valor-destaque {
+              font-size: 24px;
+              font-weight: bold;
+              color: green;
+            }
+            .assinatura {
+              margin-top: 60px;
+              padding-top: 20px;
+              border-top: 2px solid #000;
+            }
+            .campo-assinatura {
+              border-bottom: 1px solid #000;
+              width: 100%;
+              height: 50px;
+              margin-top: 10px;
+            }
+            @media print {
+              body { padding: 20px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="recibo">
+            <div class="header">
+              <h1>RECIBO DE PAGAMENTO</h1>
+              <p>Nº _______ - Data: ${dataAtual}</p>
+            </div>
+
+            <div class="linha">
+              <strong>Recebi de:</strong> __________________________________________
+            </div>
+
+            <div class="linha">
+              <strong>Nome do Freelancer:</strong> ${freelancer.nome}
+            </div>
+
+            <div class="linha">
+              <strong>Setor:</strong> ${freelancer.setor}
+            </div>
+
+            <div class="linha">
+              <strong>Período:</strong> ${getTituloPeriodo()}
+            </div>
+
+            <div class="linha">
+              <strong>Dias Trabalhados:</strong> ${freelancer.dias} dia(s)
+            </div>
+
+            <div class="linha" style="margin-top: 30px; padding: 20px; background-color: #f0f0f0;">
+              <strong style="font-size: 18px;">VALOR RECEBIDO:</strong><br>
+              <span class="valor-destaque">${formatCurrency(valorPago)}</span>
+            </div>
+
+            <div class="linha" style="margin-top: 20px;">
+              <strong>Por extenso:</strong> _________________________________________________
+              <br>_________________________________________________________________
+            </div>
+
+            <div class="assinatura">
+              <div class="linha">
+                <strong>Assinatura do Freelancer:</strong>
+                <div class="campo-assinatura"></div>
+              </div>
+
+              <div class="linha" style="margin-top: 40px;">
+                <strong>Visto do Gerente:</strong>
+                <div class="campo-assinatura"></div>
+              </div>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #666;">
+              <p>Este documento serve como comprovante de pagamento</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.print()
   }
 
   // Calcular totais

@@ -160,6 +160,7 @@ function App() {
         programacao={programacao}
         freelancers={freelancers}
         setores={setores}
+        pagamentos={pagamentos}
       />
 
       {/* Modal de Pagamentos */}

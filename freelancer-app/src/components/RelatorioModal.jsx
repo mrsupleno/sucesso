@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, Calendar, ChevronLeft, ChevronRight, Printer } from 'lucide-react'
 
-function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) {
+function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores, pagamentos }) {
   const [tipoRelatorio, setTipoRelatorio] = useState('diario') // diario, semanal, mensal, periodo
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
@@ -65,9 +65,11 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
   const dadosRelatorio = useMemo(() => {
     const totaisPorFreelancer = {}
     const totaisPorSetor = {}
-    let totalGeral = 0
+    let totalDevido = 0
+    let totalPago = 0
     let diasTrabalhados = 0
 
+    // Calcular valores devidos
     getDatasRelatorio.forEach(data => {
       if (programacao[data]?.freelancers) {
         diasTrabalhados++
@@ -79,14 +81,16 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
             // Total por freelancer
             if (!totaisPorFreelancer[freelancer.id]) {
               totaisPorFreelancer[freelancer.id] = {
+                id: freelancer.id,
                 nome: freelancer.nome,
                 setor: setor?.nome || 'Sem setor',
                 dias: 0,
-                total: 0
+                totalDevido: 0,
+                totalPago: 0
               }
             }
             totaisPorFreelancer[freelancer.id].dias++
-            totaisPorFreelancer[freelancer.id].total += item.valorDiaria
+            totaisPorFreelancer[freelancer.id].totalDevido += item.valorDiaria
 
             // Total por setor
             if (setor) {
@@ -99,20 +103,48 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
               totaisPorSetor[setor.id].total += item.valorDiaria
             }
 
-            totalGeral += item.valorDiaria
+            totalDevido += item.valorDiaria
           }
         })
       }
     })
 
+    // Calcular valores já pagos no período
+    if (pagamentos) {
+      Object.keys(pagamentos).forEach(freelancerId => {
+        const id = parseInt(freelancerId)
+        if (totaisPorFreelancer[id]) {
+          const pagamentosFreelancer = pagamentos[freelancerId] || []
+          pagamentosFreelancer.forEach(pag => {
+            const dataPagamento = pag.data
+            // Verifica se o pagamento está no período (compara ano-mês)
+            if (getDatasRelatorio.some(d => dataPagamento.startsWith(d.substring(0, 7)))) {
+              totaisPorFreelancer[id].totalPago += pag.valor
+              totalPago += pag.valor
+            }
+          })
+        }
+      })
+    }
+
+    // Calcular saldo e status para cada freelancer
+    const freelancersComSaldo = Object.values(totaisPorFreelancer).map(f => ({
+      ...f,
+      saldo: f.totalDevido - f.totalPago,
+      status: f.totalPago === 0 ? 'pendente' :
+              f.totalPago >= f.totalDevido ? 'pago' : 'parcial'
+    })).sort((a, b) => b.saldo - a.saldo)
+
     return {
-      totaisPorFreelancer: Object.values(totaisPorFreelancer).sort((a, b) => b.total - a.total),
+      totaisPorFreelancer: freelancersComSaldo,
       totaisPorSetor: Object.values(totaisPorSetor),
-      totalGeral,
+      totalDevido,
+      totalPago,
+      totalPendente: totalDevido - totalPago,
       diasTrabalhados,
       totalDias: getDatasRelatorio.length
     }
-  }, [getDatasRelatorio, programacao, freelancers, setores])
+  }, [getDatasRelatorio, programacao, freelancers, setores, pagamentos])
 
   // Formatar moeda
   const formatCurrency = (value) => {
@@ -153,6 +185,145 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
       }
       return 'Período Personalizado'
     }
+  }
+
+  // Imprimir relatório completo
+  const handleImprimir = () => {
+    const printWindow = window.open('', '', 'width=800,height=600')
+    const dataAtual = new Date().toLocaleDateString('pt-BR')
+
+    const freelancersHTML = dadosRelatorio.totaisPorFreelancer.map(f => `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px; text-align: left;">${f.nome}</td>
+        <td style="padding: 12px; text-align: center;">${f.setor}</td>
+        <td style="padding: 12px; text-align: center;">${f.dias}</td>
+        <td style="padding: 12px; text-align: right;">${formatCurrency(f.totalDevido)}</td>
+        <td style="padding: 12px; text-align: right; color: green;">${formatCurrency(f.totalPago)}</td>
+        <td style="padding: 12px; text-align: right; font-weight: bold; color: ${f.saldo > 0 ? 'red' : 'gray'};">${formatCurrency(f.saldo)}</td>
+      </tr>
+    `).join('')
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Relatório Financeiro - ${getTituloPeriodo()}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 40px;
+              max-width: 1000px;
+              margin: 0 auto;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 20px;
+            }
+            .resumo {
+              display: flex;
+              justify-content: space-around;
+              margin-bottom: 30px;
+              padding: 20px;
+              background-color: #f9fafb;
+              border: 1px solid #e5e7eb;
+            }
+            .resumo-item {
+              text-align: center;
+            }
+            .resumo-label {
+              font-size: 12px;
+              color: #6b7280;
+              margin-bottom: 5px;
+            }
+            .resumo-valor {
+              font-size: 20px;
+              font-weight: bold;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            th {
+              background-color: #1f2937;
+              color: white;
+              padding: 12px;
+              text-align: left;
+              font-weight: 600;
+            }
+            .totais {
+              margin-top: 20px;
+              padding: 15px;
+              background-color: #f3f4f6;
+              border: 2px solid #1f2937;
+            }
+            @media print {
+              body { padding: 20px; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>RELATÓRIO FINANCEIRO</h1>
+            <h2>${getTituloPeriodo()}</h2>
+            <p>Gerado em: ${dataAtual}</p>
+          </div>
+
+          <div class="resumo">
+            <div class="resumo-item">
+              <div class="resumo-label">Total de Dias</div>
+              <div class="resumo-valor">${dadosRelatorio.totalDias}</div>
+            </div>
+            <div class="resumo-item">
+              <div class="resumo-label">Dias com Programação</div>
+              <div class="resumo-valor">${dadosRelatorio.diasTrabalhados}</div>
+            </div>
+            <div class="resumo-item">
+              <div class="resumo-label">Total de Freelancers</div>
+              <div class="resumo-valor">${dadosRelatorio.totaisPorFreelancer.length}</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th style="text-align: center;">Setor</th>
+                <th style="text-align: center;">Dias</th>
+                <th style="text-align: right;">Total Devido</th>
+                <th style="text-align: right;">Pago</th>
+                <th style="text-align: right;">Saldo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${freelancersHTML}
+            </tbody>
+          </table>
+
+          <div class="totais">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <strong>TOTAL DEVIDO:</strong>
+              <span style="font-size: 18px;">${formatCurrency(dadosRelatorio.totalDevido)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <strong>TOTAL PAGO:</strong>
+              <span style="font-size: 18px; color: green;">${formatCurrency(dadosRelatorio.totalPago)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 2px solid #1f2937;">
+              <strong style="font-size: 20px;">SALDO PENDENTE:</strong>
+              <span style="font-size: 22px; font-weight: bold; color: ${dadosRelatorio.totalPendente > 0 ? 'red' : 'gray'};">${formatCurrency(dadosRelatorio.totalPendente)}</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #6b7280;">
+            <p>Este relatório foi gerado pelo Sistema de Controle de Freelancers</p>
+          </div>
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.print()
   }
 
   if (!isOpen) return null
@@ -269,11 +440,19 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
             </div>
           </div>
 
-          {/* Total Geral */}
-          <div className="bg-blue-600 text-white rounded-lg p-4">
-            <div className="text-center">
-              <p className="text-sm opacity-90 mb-1">Total Geral</p>
-              <p className="text-3xl font-bold">{formatCurrency(dadosRelatorio.totalGeral)}</p>
+          {/* Totais */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+              <p className="text-xs text-blue-700 mb-1">Total Devido</p>
+              <p className="text-sm font-bold text-blue-900">{formatCurrency(dadosRelatorio.totalDevido)}</p>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+              <p className="text-xs text-green-700 mb-1">Total Pago</p>
+              <p className="text-sm font-bold text-green-900">{formatCurrency(dadosRelatorio.totalPago)}</p>
+            </div>
+            <div className={`${dadosRelatorio.totalPendente > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-3 text-center`}>
+              <p className={`text-xs ${dadosRelatorio.totalPendente > 0 ? 'text-red-700' : 'text-gray-700'} mb-1`}>Pendente</p>
+              <p className={`text-sm font-bold ${dadosRelatorio.totalPendente > 0 ? 'text-red-900' : 'text-gray-900'}`}>{formatCurrency(dadosRelatorio.totalPendente)}</p>
             </div>
           </div>
 
@@ -305,20 +484,56 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
                 {dadosRelatorio.totaisPorFreelancer.map((freelancer, index) => (
                   <div
                     key={index}
-                    className="bg-white border border-gray-200 rounded-lg p-3"
+                    className={`border rounded-lg p-3 ${
+                      freelancer.status === 'pago' ? 'bg-green-50 border-green-200' :
+                      freelancer.status === 'parcial' ? 'bg-yellow-50 border-yellow-200' :
+                      'bg-white border-gray-200'
+                    }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-gray-900">{freelancer.nome}</span>
-                      <span className="font-semibold text-green-600">
-                        {formatCurrency(freelancer.total)}
-                      </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{freelancer.nome}</h4>
+                        <p className="text-xs text-gray-600">{freelancer.setor} • {freelancer.dias} dia(s)</p>
+                      </div>
+                      {freelancer.status === 'pago' && (
+                        <span className="text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded">
+                          ✓ Pago
+                        </span>
+                      )}
+                      {freelancer.status === 'parcial' && (
+                        <span className="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                          ⚠ Parcial
+                        </span>
+                      )}
+                      {freelancer.status === 'pendente' && (
+                        <span className="text-xs font-medium text-red-700 bg-red-100 px-2 py-1 rounded">
+                          ✕ Pendente
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs text-gray-600">
-                      <span>{freelancer.setor}</span>
-                      <span className="mx-2">•</span>
-                      <span>{freelancer.dias} {freelancer.dias === 1 ? 'dia' : 'dias'}</span>
-                      <span className="mx-2">•</span>
-                      <span>Média: {formatCurrency(freelancer.total / freelancer.dias)}/dia</span>
+                    <div className="text-sm space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Total devido:</span>
+                        <span className="font-medium text-gray-900">{formatCurrency(freelancer.totalDevido)}</span>
+                      </div>
+                      {freelancer.totalPago > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Já pago:</span>
+                          <span className="font-medium text-green-600">{formatCurrency(freelancer.totalPago)}</span>
+                        </div>
+                      )}
+                      {freelancer.saldo !== 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Saldo:</span>
+                          <span className={`font-semibold ${freelancer.saldo > 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                            {formatCurrency(Math.abs(freelancer.saldo))}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-1 border-t border-gray-200">
+                        <span className="text-xs text-gray-500">Média/dia:</span>
+                        <span className="text-xs text-gray-700">{formatCurrency(freelancer.totalDevido / freelancer.dias)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -334,7 +549,16 @@ function RelatorioModal({ isOpen, onClose, programacao, freelancers, setores }) 
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-gray-200 p-4 space-y-2">
+          {dadosRelatorio.totaisPorFreelancer.length > 0 && (
+            <button
+              onClick={handleImprimir}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Printer size={18} />
+              <span>Imprimir Relatório Completo</span>
+            </button>
+          )}
           <button
             onClick={onClose}
             className="w-full px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
