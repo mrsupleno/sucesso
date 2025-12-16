@@ -145,7 +145,7 @@ function App() {
           </button>
           <button
             onClick={handleRelatorio}
-            className="flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center gap-1 px-3 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
           >
             <FileText size={16} />
             <span>Relatório</span>

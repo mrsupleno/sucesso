@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { X, Check, DollarSign, Calendar, AlertCircle } from 'lucide-react'
+import { X, Check, DollarSign, Calendar, AlertCircle, Printer } from 'lucide-react'
 
 function PagamentosModal({ isOpen, onClose, programacao, freelancers, setores, pagamentos, setPagamentos }) {
   const [tipoRelatorio, setTipoRelatorio] = useState('mensal')
@@ -189,6 +189,66 @@ function PagamentosModal({ isOpen, onClose, programacao, freelancers, setores, p
   const totalDevido = dadosPagamentos.reduce((sum, f) => sum + f.totalDevido, 0)
   const totalPago = dadosPagamentos.reduce((sum, f) => sum + f.totalPago, 0)
   const totalPendente = totalDevido - totalPago
+
+  // Imprimir fichas individuais
+  const handleImprimirFichas = () => {
+    const printWindow = window.open('', '', 'width=800,height=600')
+    const fichasHTML = dadosPagamentos.map(freelancer => `
+      <div style="page-break-after: always; padding: 20px; border: 2px dashed #ccc; margin-bottom: 10px;">
+        <h2 style="text-align: center; margin-bottom: 20px;">FICHA DE PAGAMENTO</h2>
+        <div style="margin-bottom: 15px;">
+          <strong>Nome:</strong> ${freelancer.nome}
+        </div>
+        <div style="margin-bottom: 15px;">
+          <strong>Setor:</strong> ${freelancer.setor}
+        </div>
+        <div style="margin-bottom: 15px;">
+          <strong>Período:</strong> ${getTituloPeriodo()}
+        </div>
+        <div style="margin-bottom: 15px;">
+          <strong>Dias Trabalhados:</strong> ${freelancer.dias} dia(s)
+        </div>
+        <div style="margin-bottom: 30px;">
+          <strong style="font-size: 18px;">VALOR A RECEBER:</strong>
+          <span style="font-size: 24px; color: green;">${formatCurrency(freelancer.saldo)}</span>
+        </div>
+        <div style="margin-top: 40px; border-top: 2px solid #000; padding-top: 20px;">
+          <div style="margin-bottom: 10px;"><strong>Assinatura do Freelancer:</strong></div>
+          <div style="border-bottom: 1px solid #000; width: 100%; margin-bottom: 30px; height: 40px;"></div>
+        </div>
+        <div style="margin-top: 20px; border-top: 2px solid #000; padding-top: 20px;">
+          <div style="margin-bottom: 10px;"><strong>Visto do Gerente:</strong></div>
+          <div style="border-bottom: 1px solid #000; width: 100%; height: 40px;"></div>
+        </div>
+        <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #666;">
+          Data: ___/___/______
+        </div>
+        <div style="border-top: 3px dashed #999; margin-top: 20px; padding-top: 10px; text-align: center; font-size: 11px; color: #999;">
+          ✂ CORTAR AQUI ✂
+        </div>
+      </div>
+    `).join('')
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Fichas de Pagamento - ${getTituloPeriodo()}</title>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            @media print {
+              body { margin: 0; }
+              .page-break { page-break-after: always; }
+            }
+          </style>
+        </head>
+        <body>
+          ${fichasHTML}
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.print()
+  }
 
   if (!isOpen) return null
 
@@ -433,7 +493,16 @@ function PagamentosModal({ isOpen, onClose, programacao, freelancers, setores, p
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-gray-200 p-4 space-y-2">
+          {dadosPagamentos.length > 0 && (
+            <button
+              onClick={handleImprimirFichas}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Printer size={18} />
+              <span>Imprimir Fichas Individuais</span>
+            </button>
+          )}
           <button
             onClick={onClose}
             className="w-full px-4 py-2 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition-colors"
