@@ -6,7 +6,7 @@ import FreelancersTab from './components/FreelancersTab'
 import ProgramacaoTab from './components/ProgramacaoTab'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('setores')
+  const [activeTab, setActiveTab] = useState('programacao')
 
   // Estados para dados
   const [setores, setSetores] = useState([
