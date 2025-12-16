@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Calendar, Users, Building2, CheckCircle, FileText, DollarSign, LogOut } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Calendar, Users, Building2, CheckCircle, FileText, DollarSign, LogOut, ChevronDown, User, Building, UserCog, Shield, Info } from 'lucide-react'
 import './App.css'
 import LoginScreen from './components/LoginScreen'
 import SetoresTab from './components/SetoresTab'
@@ -15,6 +15,8 @@ function App() {
   const [isRelatorioOpen, setIsRelatorioOpen] = useState(false)
   const [isPagamentosOpen, setIsPagamentosOpen] = useState(false)
   const [isEncerrarDiaOpen, setIsEncerrarDiaOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef(null)
 
   // Estados para dados
   const [setores, setSetores] = useState([
@@ -47,14 +49,47 @@ function App() {
     { id: 'setores', label: 'Setores', icon: Building2 }
   ]
 
+  // Fechar menu ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleLogin = (userData) => {
     setUser(userData)
   }
 
   const handleLogout = () => {
+    setIsUserMenuOpen(false)
     if (confirm('Tem certeza que deseja sair?')) {
       setUser(null)
     }
+  }
+
+  const handlePerfilUsuario = () => {
+    setIsUserMenuOpen(false)
+    alert('Funcionalidade "Perfil do Usuário" em desenvolvimento')
+  }
+
+  const handleDadosEmpresa = () => {
+    setIsUserMenuOpen(false)
+    alert('Funcionalidade "Dados da Empresa" em desenvolvimento')
+  }
+
+  const handlePersonalizacaoEmpresa = () => {
+    setIsUserMenuOpen(false)
+    alert('Funcionalidade "Personalização da Empresa" em desenvolvimento')
+  }
+
+  const handleConfiguracoesPerfil = () => {
+    setIsUserMenuOpen(false)
+    alert('Funcionalidade "Configurações de Perfil" em desenvolvimento')
   }
 
   const handleEncerrarDia = () => {
@@ -82,16 +117,95 @@ function App() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold">Saborite Gestor de Freelancers</h1>
-              <p className="text-xs text-blue-100 mt-0.5">{user.nome}</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 px-3 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors text-sm"
-              title="Sair"
-            >
-              <LogOut size={16} />
-              <span className="hidden sm:inline">Sair</span>
-            </button>
+
+            {/* Menu do Usuário */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-2 px-3 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors text-sm"
+              >
+                <User size={16} />
+                <span className="font-medium">{user.nome}</span>
+                <ChevronDown size={16} className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                  {/* Cabeçalho do Menu */}
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="font-semibold text-gray-900">{user.nome}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+
+                  {/* Opções do Menu */}
+                  <div className="py-2">
+                    {/* Perfil do Usuário */}
+                    <button
+                      onClick={handlePerfilUsuario}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                    >
+                      <User size={18} className="text-blue-600" />
+                      <span>Meus Dados</span>
+                    </button>
+
+                    {/* Dados da Empresa */}
+                    <button
+                      onClick={handleDadosEmpresa}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                    >
+                      <Building size={18} className="text-blue-600" />
+                      <span>Dados da Empresa</span>
+                    </button>
+
+                    {/* Personalização */}
+                    <button
+                      onClick={handlePersonalizacaoEmpresa}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                    >
+                      <UserCog size={18} className="text-blue-600" />
+                      <span>Personalização</span>
+                    </button>
+
+                    {/* Perfil de Acesso */}
+                    <button
+                      onClick={handleConfiguracoesPerfil}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                    >
+                      <Shield size={18} className="text-blue-600" />
+                      <div className="flex flex-col items-start">
+                        <span>Perfil de Acesso</span>
+                        <span className="text-xs text-gray-500">Gerente</span>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Divisor */}
+                  <div className="border-t border-gray-200 my-2"></div>
+
+                  {/* Versão */}
+                  <div className="px-4 py-2">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <Info size={14} />
+                      <span>Versão 1.0.0</span>
+                    </div>
+                  </div>
+
+                  {/* Divisor */}
+                  <div className="border-t border-gray-200 my-2"></div>
+
+                  {/* Sair */}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut size={18} />
+                    <span className="font-medium">Sair do Sistema</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
