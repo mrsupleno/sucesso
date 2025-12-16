@@ -8,6 +8,10 @@ import ProgramacaoTab from './components/ProgramacaoTab'
 import RelatorioModal from './components/RelatorioModal'
 import PagamentosModal from './components/PagamentosModal'
 import EncerrarDiaModal from './components/EncerrarDiaModal'
+import MeusDadosModal from './components/MeusDadosModal'
+import DadosEmpresaModal from './components/DadosEmpresaModal'
+import PersonalizacaoModal from './components/PersonalizacaoModal'
+import PerfilAcessoModal from './components/PerfilAcessoModal'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -16,7 +20,30 @@ function App() {
   const [isPagamentosOpen, setIsPagamentosOpen] = useState(false)
   const [isEncerrarDiaOpen, setIsEncerrarDiaOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isMeusDadosOpen, setIsMeusDadosOpen] = useState(false)
+  const [isDadosEmpresaOpen, setIsDadosEmpresaOpen] = useState(false)
+  const [isPersonalizacaoOpen, setIsPersonalizacaoOpen] = useState(false)
+  const [isPerfilAcessoOpen, setIsPerfilAcessoOpen] = useState(false)
   const userMenuRef = useRef(null)
+
+  // Dados da empresa e personalização
+  const [dadosEmpresa, setDadosEmpresa] = useState({
+    nomeFantasia: 'Elza Lanches',
+    razaoSocial: '',
+    cnpj: '',
+    endereco: '',
+    cidade: '',
+    estado: '',
+    cep: '',
+    telefone: '',
+    email: ''
+  })
+
+  const [personalizacao, setPersonalizacao] = useState({
+    corPrimaria: '#2563EB',
+    corSecundaria: '#1e40af',
+    logo: null
+  })
 
   // Estados para dados
   const [setores, setSetores] = useState([
@@ -44,7 +71,7 @@ function App() {
   const [diasEncerrados, setDiasEncerrados] = useState({})
 
   const tabs = [
-    { id: 'programacao', label: 'Convocados', icon: Calendar },
+    { id: 'programacao', label: 'Programação', icon: Calendar },
     { id: 'freelancers', label: 'Freelancers', icon: Users },
     { id: 'setores', label: 'Setores', icon: Building2 }
   ]
@@ -74,22 +101,42 @@ function App() {
 
   const handlePerfilUsuario = () => {
     setIsUserMenuOpen(false)
-    alert('Funcionalidade "Perfil do Usuário" em desenvolvimento')
+    setIsMeusDadosOpen(true)
   }
 
   const handleDadosEmpresa = () => {
     setIsUserMenuOpen(false)
-    alert('Funcionalidade "Dados da Empresa" em desenvolvimento')
+    setIsDadosEmpresaOpen(true)
   }
 
   const handlePersonalizacaoEmpresa = () => {
     setIsUserMenuOpen(false)
-    alert('Funcionalidade "Personalização da Empresa" em desenvolvimento')
+    setIsPersonalizacaoOpen(true)
   }
 
   const handleConfiguracoesPerfil = () => {
     setIsUserMenuOpen(false)
-    alert('Funcionalidade "Configurações de Perfil" em desenvolvimento')
+    setIsPerfilAcessoOpen(true)
+  }
+
+  const handleSaveMeusDados = (dadosAtualizados) => {
+    setUser({ ...user, ...dadosAtualizados })
+    alert('Dados atualizados com sucesso!')
+  }
+
+  const handleSaveDadosEmpresa = (dadosAtualizados) => {
+    setDadosEmpresa(dadosAtualizados)
+    alert('Dados da empresa atualizados com sucesso!')
+  }
+
+  const handleSavePersonalizacao = (personalizacaoAtualizada) => {
+    setPersonalizacao(personalizacaoAtualizada)
+    alert('Personalização salva com sucesso!')
+  }
+
+  const handleSavePerfilAcesso = (novoPerfil) => {
+    setUser({ ...user, perfil: novoPerfil })
+    alert(`Perfil alterado para: ${novoPerfil}`)
   }
 
   const handleEncerrarDia = () => {
@@ -271,7 +318,7 @@ function App() {
             }`}
           >
             <Calendar size={16} />
-            <span>Convocados</span>
+            <span>Programação</span>
           </button>
           <button
             onClick={handleEncerrarDia}
@@ -328,6 +375,38 @@ function App() {
         setores={setores}
         diasEncerrados={diasEncerrados}
         setDiasEncerrados={setDiasEncerrados}
+      />
+
+      {/* Modal Meus Dados */}
+      <MeusDadosModal
+        isOpen={isMeusDadosOpen}
+        onClose={() => setIsMeusDadosOpen(false)}
+        user={user}
+        onSave={handleSaveMeusDados}
+      />
+
+      {/* Modal Dados da Empresa */}
+      <DadosEmpresaModal
+        isOpen={isDadosEmpresaOpen}
+        onClose={() => setIsDadosEmpresaOpen(false)}
+        empresa={dadosEmpresa}
+        onSave={handleSaveDadosEmpresa}
+      />
+
+      {/* Modal Personalização */}
+      <PersonalizacaoModal
+        isOpen={isPersonalizacaoOpen}
+        onClose={() => setIsPersonalizacaoOpen(false)}
+        personalizacao={personalizacao}
+        onSave={handleSavePersonalizacao}
+      />
+
+      {/* Modal Perfil de Acesso */}
+      <PerfilAcessoModal
+        isOpen={isPerfilAcessoOpen}
+        onClose={() => setIsPerfilAcessoOpen(false)}
+        perfilAtual={user?.perfil || 'Gerente'}
+        onSave={handleSavePerfilAcesso}
       />
     </div>
   )
