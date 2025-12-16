@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Calendar, Users, Building2, CheckCircle, FileText, DollarSign } from 'lucide-react'
+import { Calendar, Users, Building2, CheckCircle, FileText, DollarSign, LogOut } from 'lucide-react'
 import './App.css'
+import LoginScreen from './components/LoginScreen'
 import SetoresTab from './components/SetoresTab'
 import FreelancersTab from './components/FreelancersTab'
 import ProgramacaoTab from './components/ProgramacaoTab'
@@ -9,6 +10,7 @@ import PagamentosModal from './components/PagamentosModal'
 import EncerrarDiaModal from './components/EncerrarDiaModal'
 
 function App() {
+  const [user, setUser] = useState(null)
   const [activeTab, setActiveTab] = useState('programacao')
   const [isRelatorioOpen, setIsRelatorioOpen] = useState(false)
   const [isPagamentosOpen, setIsPagamentosOpen] = useState(false)
@@ -45,6 +47,16 @@ function App() {
     { id: 'setores', label: 'Setores', icon: Building2 }
   ]
 
+  const handleLogin = (userData) => {
+    setUser(userData)
+  }
+
+  const handleLogout = () => {
+    if (confirm('Tem certeza que deseja sair?')) {
+      setUser(null)
+    }
+  }
+
   const handleEncerrarDia = () => {
     setIsEncerrarDiaOpen(true)
   }
@@ -57,12 +69,30 @@ function App() {
     setIsRelatorioOpen(true)
   }
 
+  // Mostrar tela de login se não estiver autenticado
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} />
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="bg-blue-600 text-white shadow-md">
         <div className="max-w-[448px] mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold">Saborite Gestor de Freelancers</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold">Saborite Gestor de Freelancers</h1>
+              <p className="text-xs text-blue-100 mt-0.5">{user.nome}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 px-3 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors text-sm"
+              title="Sair"
+            >
+              <LogOut size={16} />
+              <span className="hidden sm:inline">Sair</span>
+            </button>
+          </div>
         </div>
       </header>
 
